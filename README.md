@@ -2,7 +2,7 @@
 title: SRE Incident Response OpenEnv
 emoji: 🚨
 colorFrom: red
-colorTo: yellow
+colorTo: orange
 sdk: docker
 app_port: 8000
 pinned: true
