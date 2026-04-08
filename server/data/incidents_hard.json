@@ -1,0 +1,462 @@
+[
+  {
+    "incident_id": "hard_001",
+    "incident_type": "CASCADING",
+    "description": "Database failure cascading to API and Gateway with queue buildup.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 1100, "error_rate": 0.30, "cpu_pct": 85, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1400, "error_rate": 0.45, "cpu_pct": 92, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1900, "error_rate": 0.08, "cpu_pct": 98, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 110, "error_rate": 0.01, "cpu_pct": 25, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 1500, "error_rate": 0.15, "cpu_pct": 94, "healthy": false},
+      "worker":  {"service": "worker",  "latency_ms": 800, "error_rate": 0.20, "cpu_pct": 50, "healthy": false}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h001a",
+        "service": "db",
+        "severity": "critical",
+        "message": "Database response timeout",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h001b",
+        "service": "queue",
+        "severity": "critical",
+        "message": "Queue depth critical",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h001c",
+        "service": "cache",
+        "severity": "warning",
+        "message": "Cache memory low",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h001d",
+        "service": "gateway",
+        "severity": "warning",
+        "message": "Gateway disk space 85%",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "db",
+    "ground_truth_actions": ["SCALE_UP:db", "DRAIN_QUEUE:queue", "RESTART_SERVICE:api", "RESTART_SERVICE:gateway"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_002",
+    "incident_type": "REGION_PARTIAL",
+    "description": "Partial network partition in gateway causing upstream retry storms.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 900, "error_rate": 0.35, "cpu_pct": 95, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 850, "error_rate": 0.28, "cpu_pct": 88, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 500, "error_rate": 0.05, "cpu_pct": 82, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 105, "error_rate": 0.00, "cpu_pct": 22, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 210, "error_rate": 0.02, "cpu_pct": 31, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 340, "error_rate": 0.03, "cpu_pct": 44, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h002a",
+        "service": "gateway",
+        "severity": "critical",
+        "message": "Gateway ingress packet loss high",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h002b",
+        "service": "api",
+        "severity": "critical",
+        "message": "API worker pool exhausted",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h002c",
+        "service": "worker",
+        "severity": "warning",
+        "message": "Worker log rotation failure",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h002d",
+        "service": "cache",
+        "severity": "warning",
+        "message": "Cache connection churn",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "gateway",
+    "ground_truth_actions": ["SHIFT_TRAFFIC:gateway:api:50", "SCALE_UP:api", "SCALE_UP:db"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_003",
+    "incident_type": "CASCADING",
+    "description": "Worker crash leads to queue saturation and API backpressure.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 450, "error_rate": 0.08, "cpu_pct": 40, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 950, "error_rate": 0.32, "cpu_pct": 86, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 185, "error_rate": 0.01, "cpu_pct": 42, "healthy": true},
+      "cache":   {"service": "cache",   "latency_ms": 95,  "error_rate": 0.00, "cpu_pct": 24, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 1600, "error_rate": 0.12, "cpu_pct": 98, "healthy": false},
+      "worker":  {"service": "worker",  "latency_ms": 2000, "error_rate": 0.65, "cpu_pct": 95, "healthy": false}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h003a",
+        "service": "worker",
+        "severity": "critical",
+        "message": "Worker process segmentation fault",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h003b",
+        "service": "queue",
+        "severity": "critical",
+        "message": "Queue memory usage critical",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h003c",
+        "service": "db",
+        "severity": "warning",
+        "message": "DB deadlocks detected",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h003d",
+        "service": "api",
+        "severity": "warning",
+        "message": "API ephemeral port exhaustion",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "worker",
+    "ground_truth_actions": ["RESTART_SERVICE:worker", "DRAIN_QUEUE:queue", "SCALE_UP:api"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_004",
+    "incident_type": "REGION_PARTIAL",
+    "description": "API service regional outage impacting cache and DB access.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 750, "error_rate": 0.20, "cpu_pct": 45, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1800, "error_rate": 0.60, "cpu_pct": 98, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 800, "error_rate": 0.04, "cpu_pct": 85, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 600, "error_rate": 0.10, "cpu_pct": 92, "healthy": false},
+      "queue":   {"service": "queue",   "latency_ms": 220, "error_rate": 0.02, "cpu_pct": 33, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 330, "error_rate": 0.03, "cpu_pct": 41, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h004a",
+        "service": "api",
+        "severity": "critical",
+        "message": "API instance health checks failing",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h004b",
+        "service": "cache",
+        "severity": "critical",
+        "message": "Cache cluster split-brain",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h004c",
+        "service": "worker",
+        "severity": "warning",
+        "message": "Worker disk I/O wait",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h004d",
+        "service": "gateway",
+        "severity": "warning",
+        "message": "Gateway CPU spike",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "api",
+    "ground_truth_actions": ["ROLLBACK_DEPLOY:api", "RESTART_SERVICE:cache", "SCALE_UP:db", "SHIFT_TRAFFIC:gateway:api:100"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_005",
+    "incident_type": "CASCADING",
+    "description": "Cache storm after flush saturating DB and API layers.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 550, "error_rate": 0.12, "cpu_pct": 42, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1100, "error_rate": 0.35, "cpu_pct": 82, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1600, "error_rate": 0.06, "cpu_pct": 98, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 500, "error_rate": 0.08, "cpu_pct": 94, "healthy": false},
+      "queue":   {"service": "queue",   "latency_ms": 215, "error_rate": 0.02, "cpu_pct": 31, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 335, "error_rate": 0.03, "cpu_pct": 43, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h005a",
+        "service": "cache",
+        "severity": "critical",
+        "message": "Cache miss storm detected",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h005b",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB CPU usage 100%",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h005c",
+        "service": "api",
+        "severity": "critical",
+        "message": "API 5xx errors high",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h005d",
+        "service": "worker",
+        "severity": "warning",
+        "message": "Worker memory pressure",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "cache",
+    "ground_truth_actions": ["CLEAR_CACHE:cache", "SCALE_UP:db", "SCALE_UP:api", "RESTART_SERVICE:api"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_006",
+    "incident_type": "REGION_PARTIAL",
+    "description": "Gateway misconfiguration causing unbalanced traffic and DB hotspot.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 800, "error_rate": 0.25, "cpu_pct": 92, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 700, "error_rate": 0.15, "cpu_pct": 78, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1100, "error_rate": 0.05, "cpu_pct": 96, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 102, "error_rate": 0.01, "cpu_pct": 28, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 1200, "error_rate": 0.10, "cpu_pct": 88, "healthy": false},
+      "worker":  {"service": "worker",  "latency_ms": 350, "error_rate": 0.04, "cpu_pct": 48, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h006a",
+        "service": "gateway",
+        "severity": "critical",
+        "message": "Gateway traffic imbalance",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h006b",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB primary node overload",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h006c",
+        "service": "api",
+        "severity": "warning",
+        "message": "API file descriptor leak",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h006d",
+        "service": "cache",
+        "severity": "warning",
+        "message": "Cache key distribution skewed",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "gateway",
+    "ground_truth_actions": ["SHIFT_TRAFFIC:gateway:api:30", "SCALE_UP:db", "DRAIN_QUEUE:queue", "RESTART_SERVICE:api"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_007",
+    "incident_type": "CASCADING",
+    "description": "DB deadlock storm causing API and Gateway queueing.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 1500, "error_rate": 0.40, "cpu_pct": 98, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1200, "error_rate": 0.35, "cpu_pct": 85, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1800, "error_rate": 0.08, "cpu_pct": 92, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 105, "error_rate": 0.00, "cpu_pct": 25, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 800, "error_rate": 0.05, "cpu_pct": 75, "healthy": false},
+      "worker":  {"service": "worker",  "latency_ms": 450, "error_rate": 0.10, "cpu_pct": 52, "healthy": false}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h007a",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB lock contention high",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h007b",
+        "service": "gateway",
+        "severity": "critical",
+        "message": "Gateway request backlog",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h007c",
+        "service": "cache",
+        "severity": "warning",
+        "message": "Cache node swap usage high",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h007d",
+        "service": "worker",
+        "severity": "warning",
+        "message": "Worker log ingestion delay",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "db",
+    "ground_truth_actions": ["RESTART_SERVICE:db", "SCALE_UP:api", "RESTART_SERVICE:gateway", "DRAIN_QUEUE:queue"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_008",
+    "incident_type": "REGION_PARTIAL",
+    "description": "BGP route leak impacting Gateway and API latency.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 1200, "error_rate": 0.45, "cpu_pct": 40, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1100, "error_rate": 0.38, "cpu_pct": 55, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 900, "error_rate": 0.05, "cpu_pct": 48, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 850, "error_rate": 0.12, "cpu_pct": 32, "healthy": false},
+      "queue":   {"service": "queue",   "latency_ms": 230, "error_rate": 0.02, "cpu_pct": 35, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 360, "error_rate": 0.03, "cpu_pct": 46, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h008a",
+        "service": "gateway",
+        "severity": "critical",
+        "message": "Gateway transit latency high",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h008b",
+        "service": "api",
+        "severity": "critical",
+        "message": "API remote procedure timeout",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h008c",
+        "service": "db",
+        "severity": "warning",
+        "message": "DB backup duration extended",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h008d",
+        "service": "cache",
+        "severity": "warning",
+        "message": "Cache replication lag",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "gateway",
+    "ground_truth_actions": ["SHIFT_TRAFFIC:gateway:api:100", "RESTART_SERVICE:api", "SCALE_UP:db", "RESTART_SERVICE:cache"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_009",
+    "incident_type": "CASCADING",
+    "description": "API memory leak causes swap storm and DB connection drops.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 650, "error_rate": 0.18, "cpu_pct": 45, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1900, "error_rate": 0.65, "cpu_pct": 98, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 850, "error_rate": 0.08, "cpu_pct": 92, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 120, "error_rate": 0.01, "cpu_pct": 28, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 1400, "error_rate": 0.20, "cpu_pct": 95, "healthy": false},
+      "worker":  {"service": "worker",  "latency_ms": 900, "error_rate": 0.30, "cpu_pct": 60, "healthy": false}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h009a",
+        "service": "api",
+        "severity": "critical",
+        "message": "API memory limit exceeded",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h009b",
+        "service": "queue",
+        "severity": "critical",
+        "message": "Queue node failure",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h009c",
+        "service": "gateway",
+        "severity": "warning",
+        "message": "Gateway request duration P99 outlier",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h009d",
+        "service": "db",
+        "severity": "warning",
+        "message": "DB schema lock wait",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "api",
+    "ground_truth_actions": ["ROLLBACK_DEPLOY:api", "DRAIN_QUEUE:queue", "SCALE_UP:db", "RESTART_SERVICE:worker"],
+    "difficulty": "hard"
+  },
+  {
+    "incident_id": "hard_010",
+    "incident_type": "REGION_PARTIAL",
+    "description": "Undersea cable cut impacting Gateway and DB cross-region traffic.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 1800, "error_rate": 0.50, "cpu_pct": 60, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1200, "error_rate": 0.40, "cpu_pct": 72, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1500, "error_rate": 0.10, "cpu_pct": 88, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 900,  "error_rate": 0.15, "cpu_pct": 92, "healthy": false},
+      "queue":   {"service": "queue",   "latency_ms": 700,  "error_rate": 0.08, "cpu_pct": 85, "healthy": false},
+      "worker":  {"service": "worker",  "latency_ms": 320,  "error_rate": 0.03, "cpu_pct": 40, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_h010a",
+        "service": "gateway",
+        "severity": "critical",
+        "message": "Gateway upstream timeout",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h010b",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB replication stream broken",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_h010c",
+        "service": "api",
+        "severity": "warning",
+        "message": "API GC pause duration high",
+        "is_false_positive": true
+      },
+      {
+        "alert_id": "alert_h010d",
+        "service": "cache",
+        "severity": "warning",
+        "message": "Cache key miss rate increase",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "gateway",
+    "ground_truth_actions": ["SHIFT_TRAFFIC:gateway:api:100", "SCALE_UP:db", "RESTART_SERVICE:cache", "DRAIN_QUEUE:queue", "RESTART_SERVICE:api"],
+    "difficulty": "hard"
+  }
+]

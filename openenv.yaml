@@ -1,0 +1,36 @@
+spec_version: 1
+name: openenv_sre
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
+
+description: >
+  SRE Incident Response environment. Agent observes synthetic microservice
+  alerts and metrics, executes runbook actions to restore system health.
+  Simulates real on-call SRE workflows for agent training and evaluation.
+
+tasks:
+  - id: easy
+    description: Single-service incident, one correct action required
+    max_steps: 10
+    difficulty: easy
+  - id: medium
+    description: Multi-service cascading incident, ordered action sequence
+    max_steps: 20
+    difficulty: medium
+  - id: hard
+    description: Noisy multi-signal incident with false positives and trade-offs
+    max_steps: 35
+    difficulty: hard
+
+services:
+  - gateway
+  - api
+  - db
+  - cache
+  - queue
+  - worker
+
+reward_range: [-1.0, 1.0]
+score_range: [0.0, 1.0]

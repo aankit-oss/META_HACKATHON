@@ -1,0 +1,322 @@
+[
+  {
+    "incident_id": "medium_001",
+    "incident_type": "DB_OVERLOAD",
+    "description": "Database connection pool exhausted, causing API timeouts.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 550, "error_rate": 0.15, "cpu_pct": 45, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1200, "error_rate": 0.35, "cpu_pct": 65, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1800, "error_rate": 0.05, "cpu_pct": 98, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 95,  "error_rate": 0.00, "cpu_pct": 22, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 210, "error_rate": 0.02, "cpu_pct": 31, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 340, "error_rate": 0.03, "cpu_pct": 44, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m001a",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB CPU utilization at 98%",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m001b",
+        "service": "cache",
+        "severity": "warning",
+        "message": "Cache eviction rate slightly high",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "db",
+    "ground_truth_actions": ["SCALE_UP:db", "RESTART_SERVICE:api"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_002",
+    "incident_type": "CACHE_MISS_STORM",
+    "description": "Cache flush triggered massive DB load and API degradation.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 420, "error_rate": 0.08, "cpu_pct": 42, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 850, "error_rate": 0.20, "cpu_pct": 78, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 900, "error_rate": 0.03, "cpu_pct": 85, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 120, "error_rate": 0.01, "cpu_pct": 20, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 215, "error_rate": 0.02, "cpu_pct": 33, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 335, "error_rate": 0.03, "cpu_pct": 45, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m002a",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB latency spike detected",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m002b",
+        "service": "worker",
+        "severity": "warning",
+        "message": "Worker thread pool near capacity",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "cache",
+    "ground_truth_actions": ["CLEAR_CACHE:cache", "SCALE_UP:db"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_003",
+    "incident_type": "DB_OVERLOAD",
+    "description": "Slow query in new API version locking DB tables.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 180, "error_rate": 0.02, "cpu_pct": 40, "healthy": true},
+      "api":     {"service": "api",     "latency_ms": 1500, "error_rate": 0.55, "cpu_pct": 45, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1100, "error_rate": 0.04, "cpu_pct": 92, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 100, "error_rate": 0.00, "cpu_pct": 25, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 220, "error_rate": 0.02, "cpu_pct": 30, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 350, "error_rate": 0.03, "cpu_pct": 42, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m003a",
+        "service": "api",
+        "severity": "critical",
+        "message": "API request timeout threshold exceeded",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m003b",
+        "service": "gateway",
+        "severity": "warning",
+        "message": "Gateway SSL handshake latency increase",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "db",
+    "ground_truth_actions": ["ROLLBACK_DEPLOY:api", "RESTART_SERVICE:db"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_004",
+    "incident_type": "CACHE_MISS_STORM",
+    "description": "Marketing campaign bypassed cache, hitting DB directly.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 600, "error_rate": 0.10, "cpu_pct": 50, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 950, "error_rate": 0.25, "cpu_pct": 82, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 800, "error_rate": 0.02, "cpu_pct": 88, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 90,  "error_rate": 0.00, "cpu_pct": 20, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 200, "error_rate": 0.02, "cpu_pct": 32, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 320, "error_rate": 0.03, "cpu_pct": 40, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m004a",
+        "service": "api",
+        "severity": "critical",
+        "message": "API high CPU utilization",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m004b",
+        "service": "queue",
+        "severity": "warning",
+        "message": "Queue heartbeat jitter detected",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "cache",
+    "ground_truth_actions": ["TOGGLE_FEATURE_FLAG:api", "SCALE_UP:api"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_005",
+    "incident_type": "DB_OVERLOAD",
+    "description": "Database disk I/O saturated from backup job.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 200, "error_rate": 0.03, "cpu_pct": 38, "healthy": true},
+      "api":     {"service": "api",     "latency_ms": 1100, "error_rate": 0.40, "cpu_pct": 55, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1900, "error_rate": 0.06, "cpu_pct": 75, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 110, "error_rate": 0.01, "cpu_pct": 28, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 230, "error_rate": 0.02, "cpu_pct": 35, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 360, "error_rate": 0.04, "cpu_pct": 48, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m005a",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB Disk I/O wait critical",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m005b",
+        "service": "api",
+        "severity": "warning",
+        "message": "API memory usage increasing",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "db",
+    "ground_truth_actions": ["RESTART_SERVICE:db", "RESTART_SERVICE:api"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_006",
+    "incident_type": "CACHE_MISS_STORM",
+    "description": "Cache nodes restarting simultaneously causing DB pressure.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 140, "error_rate": 0.02, "cpu_pct": 35, "healthy": true},
+      "api":     {"service": "api",     "latency_ms": 750, "error_rate": 0.18, "cpu_pct": 68, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 850, "error_rate": 0.03, "cpu_pct": 94, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 450, "error_rate": 0.12, "cpu_pct": 90, "healthy": false},
+      "queue":   {"service": "queue",   "latency_ms": 225, "error_rate": 0.02, "cpu_pct": 34, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 345, "error_rate": 0.03, "cpu_pct": 46, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m006a",
+        "service": "cache",
+        "severity": "critical",
+        "message": "Cache cluster connectivity issues",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m006b",
+        "service": "db",
+        "severity": "warning",
+        "message": "DB slow query log count high",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "cache",
+    "ground_truth_actions": ["RESTART_SERVICE:cache", "SCALE_UP:db"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_007",
+    "incident_type": "DB_OVERLOAD",
+    "description": "Unoptimized aggregate query saturating DB CPU.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 480, "error_rate": 0.12, "cpu_pct": 40, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 900, "error_rate": 0.28, "cpu_pct": 62, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1400, "error_rate": 0.04, "cpu_pct": 96, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 98,  "error_rate": 0.00, "cpu_pct": 24, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 208, "error_rate": 0.02, "cpu_pct": 32, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 328, "error_rate": 0.03, "cpu_pct": 43, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m007a",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB high CPU usage",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m007b",
+        "service": "gateway",
+        "severity": "warning",
+        "message": "Gateway open file descriptors high",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "db",
+    "ground_truth_actions": ["SCALE_UP:db", "RESTART_SERVICE:api"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_008",
+    "incident_type": "CACHE_MISS_STORM",
+    "description": "Cache service TTL misconfiguration causing frequent misses.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 150, "error_rate": 0.02, "cpu_pct": 33, "healthy": true},
+      "api":     {"service": "api",     "latency_ms": 650, "error_rate": 0.15, "cpu_pct": 72, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 750, "error_rate": 0.02, "cpu_pct": 82, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 250, "error_rate": 0.01, "cpu_pct": 30, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 212, "error_rate": 0.02, "cpu_pct": 31, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 332, "error_rate": 0.03, "cpu_pct": 41, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m008a",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB connection count critical",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m008b",
+        "service": "api",
+        "severity": "warning",
+        "message": "API thread pool saturation",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "cache",
+    "ground_truth_actions": ["CLEAR_CACHE:cache", "SCALE_UP:db"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_009",
+    "incident_type": "DB_OVERLOAD",
+    "description": "Data migration job pinning DB resources.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 520, "error_rate": 0.14, "cpu_pct": 48, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 1150, "error_rate": 0.32, "cpu_pct": 60, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 1600, "error_rate": 0.05, "cpu_pct": 95, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 105, "error_rate": 0.00, "cpu_pct": 26, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 222, "error_rate": 0.02, "cpu_pct": 34, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 352, "error_rate": 0.03, "cpu_pct": 47, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m009a",
+        "service": "db",
+        "severity": "critical",
+        "message": "DB CPU utilization high",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m009b",
+        "service": "worker",
+        "severity": "warning",
+        "message": "Worker job queue depth increasing",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "db",
+    "ground_truth_actions": ["SCALE_UP:db", "RESTART_SERVICE:api"],
+    "difficulty": "medium"
+  },
+  {
+    "incident_id": "medium_010",
+    "incident_type": "CACHE_MISS_STORM",
+    "description": "Incorrect feature flag enabled causing cache bypass.",
+    "initial_metrics": {
+      "gateway": {"service": "gateway", "latency_ms": 400, "error_rate": 0.09, "cpu_pct": 40, "healthy": false},
+      "api":     {"service": "api",     "latency_ms": 820, "error_rate": 0.22, "cpu_pct": 85, "healthy": false},
+      "db":      {"service": "db",      "latency_ms": 880, "error_rate": 0.03, "cpu_pct": 88, "healthy": false},
+      "cache":   {"service": "cache",   "latency_ms": 92,  "error_rate": 0.00, "cpu_pct": 22, "healthy": true},
+      "queue":   {"service": "queue",   "latency_ms": 202, "error_rate": 0.02, "cpu_pct": 31, "healthy": true},
+      "worker":  {"service": "worker",  "latency_ms": 322, "error_rate": 0.03, "cpu_pct": 42, "healthy": true}
+    },
+    "alerts": [
+      {
+        "alert_id": "alert_m010a",
+        "service": "api",
+        "severity": "critical",
+        "message": "API error rate exceeding threshold",
+        "is_false_positive": false
+      },
+      {
+        "alert_id": "alert_m010b",
+        "service": "db",
+        "severity": "warning",
+        "message": "DB connection count high",
+        "is_false_positive": true
+      }
+    ],
+    "ground_truth_root_cause": "api",
+    "ground_truth_actions": ["TOGGLE_FEATURE_FLAG:api", "SCALE_UP:db"],
+    "difficulty": "medium"
+  }
+]
