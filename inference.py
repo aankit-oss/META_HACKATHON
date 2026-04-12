@@ -4,7 +4,7 @@ import textwrap
 from typing import List, Optional
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    load_dotenv(override=False)  # never override env vars injected by the validator
 except ImportError:
     pass  # dotenv is optional; validator provides env vars directly
 
@@ -18,7 +18,8 @@ except ImportError:
     raise ImportError("Run from project root: python inference.py")
 
 IMAGE_NAME = os.getenv("IMAGE_NAME")
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+# Validator injects API_KEY and API_BASE_URL — prefer those over HF_TOKEN
+API_KEY = os.getenv("API_KEY") or os.getenv("HF_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 BENCHMARK = "openenv_sre"
@@ -187,6 +188,8 @@ async def main() -> None:
         print("[ERROR] HF_TOKEN or API_KEY environment variable not set.", flush=True)
         return
 
+    print(f"[CONFIG] API_BASE_URL={API_BASE_URL}", flush=True)
+    print(f"[CONFIG] MODEL_NAME={MODEL_NAME}", flush=True)
     client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
     for task in TASKS:
