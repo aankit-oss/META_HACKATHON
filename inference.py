@@ -2,10 +2,13 @@ import asyncio
 import os
 import textwrap
 from typing import List, Optional
-from dotenv import load_dotenv
-from openai import OpenAI
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv is optional; validator provides env vars directly
 
-load_dotenv()
+from openai import OpenAI
 
 # Import the OpenEnv async client and action model
 try:
@@ -122,11 +125,12 @@ async def run_episode(client: OpenAI, task_name: str, max_steps: int) -> None:
     steps_taken = 0
     score = 0.0
     success = False
-
-    # Connect to running Docker container via WebSocket
-    env = await OpenenvSreClient.from_docker_image(IMAGE_NAME)
+    env = None
 
     try:
+        # Connect to running Docker container via WebSocket
+        env = await OpenenvSreClient.from_docker_image(IMAGE_NAME)
+
         result = await env.reset(task=task_name, seed=42)
         obs = result.observation
 
@@ -164,11 +168,15 @@ async def run_episode(client: OpenAI, task_name: str, max_steps: int) -> None:
         score = min(max(float(score), 0.0), 1.0)
         success = score >= SUCCESS_SCORE_THRESHOLD
 
+    except Exception as e:
+        print(f"[DEBUG] Episode error: {e}", flush=True)
+
     finally:
-        try:
-            await env.close()
-        except Exception as e:
-            print(f"[DEBUG] env.close() error: {e}", flush=True)
+        if env is not None:
+            try:
+                await env.close()
+            except Exception as e:
+                print(f"[DEBUG] env.close() error: {e}", flush=True)
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
 
